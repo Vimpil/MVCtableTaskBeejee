@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+
+    <h1>Welcome Table</h1>
+    
+    
+	<!-- IF login wrong -->
+    {% if role_id == 3 %}
+		<p >Wrong username/password.</p>
+	{% endif %}
+	
+		<!-- IF logged ADMIN -->
+	{% if role_id == 1 %}
+     
+    <p class="text-center login-title">Admin</p>
+    
+     <a style="font-size: 18px" href="index"><input id='adminLogoutBtn' type="BUTTON" class="btn btn-lg btn-primary btn-block" value="logout" /></a>
+      
+	<!-- ELSE -->
+	{% else %}
+
+    <p class="text-center login-title">Admin Sign in</p>
+    
+    <form method="post" class="form-signin" id="form-signin" name="form-signin" action="index">
+        
+        <input type="hidden" name="action" value="login">
+               
+               {% if error != empty %}
+                    <p>
+						<p>LOGIN ERROR<p>
+						{{error}}
+                    </p>
+                {% endif %}
+				
+				<input type="text" name="login" class="form-control" id="login" placeholder="Логин" required autofocus>
+                
+                <input type="password" name="password" class="form-control" id="password" placeholder="Пароль" required>
+                
+                <input type="submit" class="btn btn-lg btn-primary btn-block" value="Вход"/>
+        </form>  
+    {% endif %}
+    
+   
+   <div class="container">  
+        <h3 align="center">Make Pagination using Jquery, PHP, Ajax and MySQL</h3><br />  
+        <div class="table-responsive" id="pagination_data">  
+			
+        </div>  
+  </div> 
+  
+  <?php if (($_SESSION['role_id'])==1):?>
+   
+    <p style='text-align:center'>Выбраный ID для правки:</p>
+    <div id="choosed_row" style='text-align:center'></div>
+
+  <?php endif; ?>  
+  
+  <p class="text-center login-title">Add task</p>
+    
+  <form class="form-addTask" id="form-addTask" name="form-addTask">
+        
+  <input type="hidden">
+             
+  <input type="text" name="name" class="form-control" id="name" placeholder="Пользователь" required autofocus min="1">
+              
+
+  <input type="email" name="email" class="form-control" id="email" placeholder="username@smth.com" required>
+
+
+  <input type="text" name="task" class="form-control" id="task" placeholder="Задача" required min="1">
+              
+  <input type="button" class="btn btn-lg btn-primary btn-block" value="Добавить" id='addBtn'/>  
+  
+  <!-- IF admin add some stuff change globar vars-->
+  <?php if (($_SESSION['role_id'])==1):?>
+    <input type="button" class="btn btn-lg btn-primary btn-block" value="Обновить" disabled id='updateBtn'/>
+    <script>
+      window.role_id = 1;
+    </script>
+    <?php else:?>
+      <script>
+      window.role_id = 0;
+    </script>
+  <?php endif; ?>
+    
+    </form>
+	</div>
+
+<p>role_id</p>
+{{role_id}}
+
+<p>rowLength</p>
+{{rowLength| raw }}
+{{outtt}}
+<p>output</p>
+{{output| raw }}
+{{pageNum}}
+{% endblock %}

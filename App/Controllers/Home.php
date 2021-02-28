@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use \Core\View;
-
+use \App\Models\User;
 /**
  * Home controller
  *
@@ -19,6 +19,14 @@ class Home extends \Core\Controller
      */
     public function indexAction()
     {
-        View::renderTemplate('Home/index.html');
-    }
+        View::renderTemplate('Home/index.html', [
+    'title'    => 'Список задач',
+    'role_id'  => 0
+	]);
+
+	}
+
+		
 }
+
+

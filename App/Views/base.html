@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{currentpath}}/css/style.css">
 </head>
 <body>
     {% block body %}
     {% endblock %}
 </body>
+<footer>
+		
+</footer>
+{% set currentpath = app.request.uri %}
+{{ currentpath }}
+<script src="{{currentpath}}/js/jquery.js"></script>
+<script src="{{currentpath}}/js/script.js"></script>
+
 </html>

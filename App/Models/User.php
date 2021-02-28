@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use PDO;
+use \Core\View;
 
 /**
  * Example user model
@@ -23,4 +24,22 @@ class User extends \Core\Model
         $stmt = $db->query('SELECT id, name FROM users');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    public static function getUser($username, $password)
+    {
+        // Called from \Core\Model
+        $db = static::getDB();
+		
+        $stmt = $db->prepare("SELECT * FROM usrdata WHERE login=:login");
+        $stmt->execute(array(
+        ':login' => $username
+        ));
+        // Get user matching request
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $data;
+        
+
+    }
+    
 }

@@ -1,0 +1,63 @@
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+table {
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  overflow: scroll;
+  height: 300px;
+  display: block;
+}
+
+th {
+  cursor: pointer;
+}
+
+th, td {
+  text-align: left;
+  padding: 25px;
+  overflow: scroll;
+  position: relative;
+}
+
+td:last-child{
+	text-align: center;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2
+}
+
+.choosen{
+	color:red;
+}
+
+#pagination_data tr{
+	cursor: pointer;
+	height: 20px;
+	overflow: scroll;
+}
+
+#pagination_data{
+	user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
+}
+
+.pagination_link.active{
+	color: cornflowerblue;
+}
+
+.editedTask{
+	position: absolute;
+	color:red;
+	font-size: 15px;
+	left: 30px;
+	display: block;
+
+}
