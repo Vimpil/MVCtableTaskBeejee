@@ -21,11 +21,43 @@ class Table extends \Core\Controller
      */
     
     
-    public function changeTablePage($startFrom, $pageStep){
-		    
-		    $output = "";
+    function changeTablePage(){
+
+		$record_per_page = 3;  
+		$page = '';  
+		$output = '';
+		$total_records = '';
+		$res = [];
+		$query = '';
+		$status='';
+		$ascDesc=!empty($_POST['ascDesc']) ? trim($_POST['ascDesc']) : null;
+		
+		if(isset($_POST["page"]))  
+		 {  
+		      $page = $_POST["page"];  
+		 }  
+		 else  
+		 {  
+		      $page = 1;  
+		 }
+
+
+		$start_from = ($page - 1)*$record_per_page;
+
+
+
+ 		if(isset($_POST["tableHead"])){
+ 			$tableHead = $_POST["tableHead"];
+ 		}else{
+ 			$tableHead = 'id';
+ 		}
+
+		
+		$tableRows = TableRows::getTablePage($tableHead,$ascDesc, $start_from, $record_per_page);
+		$total_records = count(TableRows::getAllTable());
 			
-			$output .= "<table id='myTable'>
+		$output .= "  
+			<table id='myTable'>
 	        <tbody style='width:100%>
 	        <tr>
 	        	<th id='idClick' name='id' style='display:none'></th>
@@ -33,67 +65,159 @@ class Table extends \Core\Controller
               	<th id='emailClick' name='email' style='width:20%'>email</th>
               	<th id='taskClick' name='task' style='width:40%'>текст задачи</th>
               	<th id='statusClick' name='status' style='width:10%'>статус</th>
-           </tr>  ";  
-			$tableRows = TableRows::getAllTable();
-			$rowLength = count($tableRows);
-			$finishTo = 0;
-			if($startFrom+$pageStep>$rowLength){
-				$finishTo = $rowLength;
+           </tr>  
+		";  
+	
+		foreach($tableRows as $row) {
+			
+			if(!empty($_POST['editedTask']) ? trim($_POST['editedTask']) : null==1){
+				$editedTask='<div class = "editedTask">edited</div>';
 			}else{
-				$finishTo=$startFrom+$pageStep;
+				$editedTask='';
 			}
-			for($i=$startFrom;$i<$finishTo;$i++){
-				
-				$output .= '  
-			           <tr>  
-			                <td style="display:none">'.$tableRows[$i]["id"].'</td> 
-			                <td>'.htmlspecialchars($tableRows[$i]["name"]).'</td>  
-			                 <td>'.htmlspecialchars($tableRows[$i]["email"]).'</td>  
-			                <td>'.htmlspecialchars($tableRows[$i]["task"]).'</td>  
-			                <td>'.htmlspecialchars($tableRows[$i]["status"]).'</td>  
-			           </tr>  
-			      ';  
-				
-				}
-			$links="";
-			
-			$pagesCount=ceil($rowLength/$pageStep);
-			$output .= '</table><div class="links block">';
-			
-			/*
-			for($page = 1; $page<= $pagesCount; $page++) {  
-				$output .= '<a href = "index2.php?page=' . $page . '">' . $page . ' </a>';  
-			}
-			*/
-			//<input type="button" name="action" value="pageChange" />
-			for($page = 1; $page<= $pagesCount; $page++) {  
-				$output .= '<form method="post" class="form-signin" name="form-signin" action="index">
-        <input type="hidden" name="action" class="form-control" value="pageChagnge">
-               <input type="submit" name="pageChagnge"  class="btn btn-lg btn-primary btn-block" value="'.$page.'"/>
-        </form>  ';
-			}
-        
-        
 
-			$output .= '</div>';
-			
-			/*foreach($tableRows as $row) {
-				$output .= '  
+			if($row["status"]==0){
+				$status='<input type="checkbox"> '.$editedTask;
+			}else{
+				$status='<input type="checkbox" checked>'.$editedTask;
+			};
+
+			 $output .= '  
 			           <tr>  
 			                <td style="display:none">'.$row["id"].'</td> 
 			                <td>'.htmlspecialchars($row["name"]).'</td>  
 			                 <td>'.htmlspecialchars($row["email"]).'</td>  
 			                <td>'.htmlspecialchars($row["task"]).'</td>  
-			                <td>'.htmlspecialchars($row["status"]).'</td>  
+			                 <td>'.$status.'</td>  
 			           </tr>  
 			      ';  
-				}*/
-	  
-	  return array('output' => $output,'rowLength' => $rowLength);
+		}
+		/*
+		$query = "SELECT COUNT(IFNULL(id, 1)) FROM tasks;";
+		$stmt = $this->db->prepare($query);
+		$stmt->execute();
+		*/
+		/*
+		while ($row=$stmt->fetch())
+		
+		{	
+			 $total_records=$row[0];
+		}
+		*/
+		
+		$output .= '</table><br /><div align="center" id="table_pages">';
+		$total_pages = ceil($total_records/$record_per_page);
+		for($i=1; $i<=$total_pages; $i++)  
+		 {  
+		 	if ($i==$page){
+				$output .= "<span class='pagination_link active' style='cursor:pointer; padding:6px; border:1px solid #ccc;' id='".$i."'>".$i."</span>";
+		 	}else{
+
+		      $output .= "<span class='pagination_link' style='cursor:pointer; padding:6px; border:1px solid #ccc;' id='".$i."'>".$i."</span>";  
+		  }
+		 } 
+
+		$res = $output;
+
+	    print_r($res);
+
+  	}
+  	
+    public function addTask() {
+		/*$_SESSION['role_id'] = 3;		 
+		 $res = "<h1>HEEE</h1>";
+		 echo ($res);*/
+		 $total_records = (TableRows::getAllTable());
+		 $lastId=[];
+
+		foreach($total_records as $row) {
+		    
+		    $id = $row['id'];
+		    $name = $row['name'];
+		    $email = $row['email'];
+		    $task = $row['task'];
+		    
+
+		    $lastId = array("id" => $id,"name" => $name,"email" => $email,"task" => $task);
+		    
+		    
+		}
+
+
+		$_SESSION['addRow']=$lastId;
+
+			$name = $_POST['name'];
+			$email = $_POST['email'];
+			$task = $_POST['task'];
+			
+			$status = 0;
+			$newId=$lastId['id']+1;
+			$tableRows = TableRows::insterTable($newId,$name, $email, $task, $status);
+		 
 	}
+	
     
     public function indexAction()
     {
+		if(!empty($_POST)) {
+			$action = $_POST['action'];
+			
+			
+			switch ($action) {
+
+
+				case 'pageChange':
+				
+					if(!$this->pageChange()) {
+						
+					}
+				
+					break;
+
+
+				case 'logout':
+				
+					if(!$this->logout()) {
+						
+					}
+				
+					break;
+
+
+				case 'addTask':
+
+					if(!$this->addTask()) {
+						
+					}
+					break;
+
+
+				case 'changeTablePage':
+
+					if(!$this->changeTablePage()) {
+						
+					}
+					break;
+
+				case 'updateRowStatus':
+
+				if(!$this->updateRowStatus()) {
+						
+					}
+					break;
+
+				case 'updateRowTask':
+
+				if(!$this->updateRowTask()) {
+						
+					}
+					break;				
+
+
+			}
+		}else{
+		
+		
 		if(empty($startFrom)){
 				$startFrom=0;
 				}
@@ -104,39 +228,7 @@ class Table extends \Core\Controller
 
 		if(empty($pageNum)){
 				$pageNum=1;
-				}
-
-
-		$changeTablePageArray=($this->changeTablePage($startFrom, $pageStep));				
-		$output=$changeTablePageArray['output'];
-		//$rowLength=$changeTablePageArray['rowLength'];
-		
-		
-		
-		/*
-		foreach($changeTablePageArray as $key => $value)
-		{
-		  if($key=='output'){
-			  $output=$value;
-		  }
-		  if($key=='rowLength'){
-			  $rowLength=$value;
-		  }
-		}
-		*/
-		
-		//$pages_count=($this->changeTablePage($startFrom, $pageStep));
-		
-		
-		
-        if(isset($_POST['pageChagnge'])){
-			$pageNum = !empty($_POST['pageChagnge']) ? trim($_POST['pageChagnge']) : null;
-			View::renderTemplate('Table/index.html', [
-				'role_id'  => 0,
-				'output'   => $output,
-				'pageNum'  => $pageNum
-				]);
-		}
+				} 
 		
 		if(isset($_POST['login'])){
 			//Retrieve the field values from our login form.
@@ -155,6 +247,7 @@ class Table extends \Core\Controller
 				'role_id'  => 0,
 				'error'    => $errMsg,
 				'output'   => $output,
+				'pageNum'  => $pageNum
 				]);
 				
 			}else{
@@ -170,6 +263,7 @@ class Table extends \Core\Controller
 					View::renderTemplate('Table/index.html', [
 					'role_id'  => 1,
 					'output'   => $output,
+					'pageNum'  => $pageNum
 					]);
 				
 				}else{
@@ -178,6 +272,7 @@ class Table extends \Core\Controller
 					'role_id'  => 0,
 					'error'    => $errMsg,
 					'output'   => $output,
+					'pageNum'  => $pageNum
 				]);
 				}
 			}
@@ -187,20 +282,14 @@ class Table extends \Core\Controller
 			View::renderTemplate('Table/index.html', [
 			'title'    => 'Список задач',
 			'role_id'  => 0,    
-			'output'   => $output,	
+			//'output'   => $output,	
+			'pageNum'  => $pageNum
 			]);
 			
 		}
 	}
+}
 	
-	
-	public function loginAction()
-    {		
-		
-		
-		
-			
-	}   
 
 
 		

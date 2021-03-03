@@ -19,7 +19,7 @@ class Home extends \Core\Controller
      */
     public function indexAction()
     {
-        View::renderTemplate('Home/index.html', [
+        View::render('Home/index.html', [
     'title'    => 'Список задач',
     'role_id'  => 0
 	]);

@@ -39,6 +39,7 @@ class View
      *
      * @return void
      */
+     
     public static function renderTemplate($template, $args = [])
     {
         static $twig = null;
@@ -50,4 +51,5 @@ class View
 
         echo $twig->render($template, $args);
     }
+    
 }
