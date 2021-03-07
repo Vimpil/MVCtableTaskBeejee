@@ -30,14 +30,17 @@ class TableRows extends \Core\Model
     }
     
     
+    
     public static function countTable()
     {
     
         $db = static::getDB();
-        $stmt = $db->query('SELECT COUNT(*) FROM tasks;');
-		$stmt->execute();
-		
-        return $total_records;
+        $stmt = $db->prepare('SELECT COUNT(*) FROM tasks');
+        $stmt->execute();
+                
+        $count = $stmt->fetchColumn() ;
+        
+		return $count;
         
     }
     
@@ -52,13 +55,49 @@ class TableRows extends \Core\Model
     }
     
     
-        public static function insterTable ($newId,$name, $email, $task, $status)
+    public static function insterTable ($newId,$name, $email, $task, $status)
     {
+		//$this->debug_to_console("insertTable");
+		
+		
 		$db = static::getDB();
-        $stmt = $db->query("INSERT INTO `tasks`(`id`, `name`, `email`, `task`, `status`, `editedTask`) VALUES ('$newId','$name','$email','$task','$status', '0')");
-        $stmt->execute();
+        $stmt = $db->prepare("INSERT INTO `tasks`(`id`, `name`, `email`, `task`, `status`, `editedTask`) VALUES (:newId, :name, :email, :task, :status, '0')");
+        $stmt->execute(array(
+        ':newId' => $newId,
+        ':name' => $name,
+        ':email' => $email,
+        ':task' => $task,
+        ':status' => $status,
+        ));
         
     }
+    
+    
+    public static function updateRowStatus ($newId, $status)
+    {
+		$db = static::getDB();
+        $stmt = $db->prepare("UPDATE tasks SET status=:status WHERE id=:newId");
+        $stmt->execute(array(
+        ':status' => $status,
+        ':newId' => $newId,
+        ));
+        
+        // UPDATE tasks SET `status`='1' WHERE id=1231 
+    }
+    
+    public static function  updateRowTask($id, $task){
+
+
+		
+		$db = static::getDB();
+        $stmt = $db->prepare("UPDATE tasks SET task=:task, editedTask='1' WHERE id=:id");
+        $stmt->execute(array(
+		':task' => $task,
+        ':id' => $id,        
+        ));
+		
+
+  	}
     
     
     

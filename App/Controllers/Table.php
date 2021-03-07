@@ -10,6 +10,9 @@ use \App\Models\TableRows;
  *
  * PHP version 7.0
  */
+
+
+session_start();
 class Table extends \Core\Controller
 {
 
@@ -20,7 +23,15 @@ class Table extends \Core\Controller
      * @return void
      */
     
-    
+    function debug_to_console($data) {
+		$output = $data;
+		if (is_array($output))
+			$output = implode(',', $output);
+
+		echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+	}
+
+//$this->debug_to_console("Test");
     function changeTablePage(){
 
 		$record_per_page = 3;  
@@ -54,23 +65,27 @@ class Table extends \Core\Controller
 
 		
 		$tableRows = TableRows::getTablePage($tableHead,$ascDesc, $start_from, $record_per_page);
-		$total_records = count(TableRows::getAllTable());
-			
+		 
+		$total_records=(TableRows::countTable());
+		
+		$some="some";
+		
+		
 		$output .= "  
-			<table id='myTable'>
-	        <tbody style='width:100%>
+			<table id='myTable' class='fixed'>
+	        <tbody>
 	        <tr>
 	        	<th id='idClick' name='id' style='display:none'></th>
-              	<th id='nameClick' name='name' style='width:30%'>пользователь</th>
-              	<th id='emailClick' name='email' style='width:20%'>email</th>
-              	<th id='taskClick' name='task' style='width:40%'>текст задачи</th>
-              	<th id='statusClick' name='status' style='width:10%'>статус</th>
+              	<th id='nameClick' name='name'>пользователь</th>
+              	<th id='emailClick' name='email'>email</th>
+              	<th id='taskClick' name='task'>текст задачи</th>
+              	<th id='statusClick' name='status'>статус</th>
            </tr>  
 		";  
 	
 		foreach($tableRows as $row) {
 			
-			if(!empty($_POST['editedTask']) ? trim($_POST['editedTask']) : null==1){
+			if($row["editedTask"]==1){
 				$editedTask='<div class = "editedTask">edited</div>';
 			}else{
 				$editedTask='';
@@ -92,19 +107,6 @@ class Table extends \Core\Controller
 			           </tr>  
 			      ';  
 		}
-		/*
-		$query = "SELECT COUNT(IFNULL(id, 1)) FROM tasks;";
-		$stmt = $this->db->prepare($query);
-		$stmt->execute();
-		*/
-		/*
-		while ($row=$stmt->fetch())
-		
-		{	
-			 $total_records=$row[0];
-		}
-		*/
-		
 		$output .= '</table><br /><div align="center" id="table_pages">';
 		$total_pages = ceil($total_records/$record_per_page);
 		for($i=1; $i<=$total_pages; $i++)  
@@ -116,49 +118,122 @@ class Table extends \Core\Controller
 		      $output .= "<span class='pagination_link' style='cursor:pointer; padding:6px; border:1px solid #ccc;' id='".$i."'>".$i."</span>";  
 		  }
 		 } 
-
+		$SESSION['output']=$output;
 		$res = $output;
 
 	    print_r($res);
+	    
+	    
 
   	}
   	
     public function addTask() {
-		/*$_SESSION['role_id'] = 3;		 
-		 $res = "<h1>HEEE</h1>";
-		 echo ($res);*/
-		 $total_records = (TableRows::getAllTable());
+		
+		 $total_records = (TableRows::countTable());
 		 $lastId=[];
-
-		foreach($total_records as $row) {
-		    
-		    $id = $row['id'];
-		    $name = $row['name'];
-		    $email = $row['email'];
-		    $task = $row['task'];
-		    
-
-		    $lastId = array("id" => $id,"name" => $name,"email" => $email,"task" => $task);
-		    
-		    
+	
+		if($total_records!=0){
+			
+			$newId=$total_records+1;
+			
+		}else{
+			$newId=1;
 		}
-
-
-		$_SESSION['addRow']=$lastId;
-
+		
+		//debug_to_console('$total_records '+$total_records);
+//$newId=1;
 			$name = $_POST['name'];
 			$email = $_POST['email'];
-			$task = $_POST['task'];
-			
+			$task = $_POST['task'];			
 			$status = 0;
-			$newId=$lastId['id']+1;
-			$tableRows = TableRows::insterTable($newId,$name, $email, $task, $status);
+			
+			TableRows::insterTable($newId,$name, $email, $task, $status);
+			
 		 
 	}
+	
+	function updateRowStatus(){
+
+  		$id = $_POST['id'];  
+  		$status = $_POST['status'];  
+
+		TableRows::updateRowStatus($id, $status);		
+		
+
+  	}
+  	
+  	function updateRowTask(){
+  		
+  		
+  		$id = $_POST['id'];  
+  		$task = $_POST['task'];  
+/*
+		debug_to_console('$id');
+		debug_to_console($id);
+		debug_to_console('$task');
+		debug_to_console($task);
+*/
+		TableRows::updateRowTask($id, $task);		
+		
+
+  	}
+  	
+  	function login(){
+			//Retrieve the field values from our login form.
+            
+            $username = !empty($_POST['login']) ? trim($_POST['login']) : null;
+            $passwordAttempt = !empty($_POST['password']) ? trim($_POST['password']) : null;
+            $passwordAttempt = md5($passwordAttempt);
+            
+            $user = User::getUser($username, $passwordAttempt);
+            
+            if($user == false){
+            
+				$errMsg = "User $username not found.";
+				
+				View::renderTemplate('Table/index.html', [
+				'role_id'  => 0,
+				'error'    => $errMsg,
+				/*'output'   => $output,
+				'pageNum'  => $pageNum*/
+				]);
+				
+			}else{		
+				if($passwordAttempt == $user["password"]) {
+					
+					View::renderTemplate('Table/index.html', [
+					'role_id'  => 1,
+					/*'output'   => $output,
+					'pageNum'  => $pageNum*/
+					]);
+					$_SESSION['role_id'] = 1;
+				
+				}else{
+				$errMsg = 'Password did not match!';
+				View::renderTemplate('Table/index.html', [
+					'role_id'  => 0,
+					'error'    => $errMsg,
+					/*'output'   => $output,
+					'pageNum'  => $pageNum*/
+				]);
+				}
+			}
+		}
+		
+		
+		function logout(){
+			$_SESSION['role_id'] = 0;
+			 session_destroy();
+		}
 	
     
     public function indexAction()
     {
+		if(!isset($_SESSION['role_id'])){
+			$_SESSION['role_id']=0;
+			}
+		
+		
 		if(!empty($_POST)) {
 			$action = $_POST['action'];
 			
@@ -175,6 +250,14 @@ class Table extends \Core\Controller
 					break;
 
 
+				case 'login':
+				
+					if(!$this->login()) {
+						
+					}
+				
+					break;
+				
 				case 'logout':
 				
 					if(!$this->logout()) {
@@ -195,7 +278,7 @@ class Table extends \Core\Controller
 				case 'changeTablePage':
 
 					if(!$this->changeTablePage()) {
-						
+											
 					}
 					break;
 
@@ -230,63 +313,29 @@ class Table extends \Core\Controller
 				$pageNum=1;
 				} 
 		
-		if(isset($_POST['login'])){
-			//Retrieve the field values from our login form.
-            
-            $username = !empty($_POST['login']) ? trim($_POST['login']) : null;
-            $passwordAttempt = !empty($_POST['password']) ? trim($_POST['password']) : null;
-            $passwordAttempt = md5($passwordAttempt);
-            
-            $user = User::getUser($username, $passwordAttempt);
-            
-            if($user == false){
-            
-				$errMsg = "User $username not found.";
+			 
+			if($_SESSION['role_id'] == 1){
 				
 				View::renderTemplate('Table/index.html', [
-				'role_id'  => 0,
-				'error'    => $errMsg,
-				'output'   => $output,
-				'pageNum'  => $pageNum
+				'title'    => 'Список задач',
+				'role_id'  => 1,    	
+				'pageNum'  => $pageNum,
+				//'output'   => $this->changeTablePage($output),
 				]);
 				
-			}else{
-				/*
-				View::renderTemplate('Table/index.html', [
-					'role_id'  => 1,
-					'output'   => ($user["index"])
-					]);
-					
-				*/
-				if($passwordAttempt == $user["password"]) {
-					
-					View::renderTemplate('Table/index.html', [
-					'role_id'  => 1,
-					'output'   => $output,
-					'pageNum'  => $pageNum
-					]);
 				
 				}else{
-				$errMsg = 'Password did not match!';
-				View::renderTemplate('Table/index.html', [
-					'role_id'  => 0,
-					'error'    => $errMsg,
-					'output'   => $output,
-					'pageNum'  => $pageNum
-				]);
-				}
-			}
             
-		}else{
 		
 			View::renderTemplate('Table/index.html', [
 			'title'    => 'Список задач',
-			'role_id'  => 0,    
-			//'output'   => $output,	
-			'pageNum'  => $pageNum
+			'role_id'  => 0,    	
+			'pageNum'  => $pageNum,
+			//'output'   => $this->changeTablePage($output),
 			]);
 			
 		}
+			
 	}
 }
 	

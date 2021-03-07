@@ -5,11 +5,17 @@ table, th, td {
 
 table {
   border-spacing: 0;
-  width: 100%;
   border: 1px solid #ddd;
   overflow: scroll;
   height: 300px;
   display: block;
+}
+
+table.fixed { 
+	table-layout:fixed; 
+}
+table.fixed td { 
+	overflow: hidden; 
 }
 
 th {
@@ -21,6 +27,7 @@ th, td {
   padding: 25px;
   overflow: scroll;
   position: relative;
+  width:240px;
 }
 
 td:last-child{
@@ -57,7 +64,8 @@ tr:nth-child(even) {
 	position: absolute;
 	color:red;
 	font-size: 15px;
-	left: 30px;
+	left: 50%;
 	display: block;
 
+	margin-left: -23px;
 }

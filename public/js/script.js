@@ -94,7 +94,7 @@ window.tableHead = 'id';
 
 // Th Click order column
 $(document).on('click', '#myTable th', function(e){
-
+console.log("column");
   window.tableHead=($(this).attr('name'));
 
   switch (window.tableHead) {
@@ -128,8 +128,8 @@ $(document).on('click', '#myTable th', function(e){
 });
 
 // Add row
-$(document).on('click', '#addBtn', function(){
-
+$(document).on('click', '#addBtn', function(e){
+e.preventDefault();
 var validity=true;
 
 if(!$('#email')[0].checkValidity()){
@@ -230,8 +230,8 @@ $(document).on('click', '#updateBtn', function(){
 // Change page
 var action = 'changeTablePage';
 load_data(window.page,window.tableHead,window.ascDesc);
-console.log("window.ascDesc");
-console.log(window.ascDesc);
+
+
 function load_data(page, tableHead, ascDesc)
 {
   
@@ -244,7 +244,7 @@ function load_data(page, tableHead, ascDesc)
           dataType: "html",
           async: false,
           success:function(response){			  
-            console.log("AJAX");
+            
             
             $('#pagination_data').html(response);                                            
           },
@@ -274,6 +274,7 @@ $(document).on('click', '.pagination_link', function(){
 
 // Change page link click
 $(document).on('click', '#pagination_data tr:not(:first-child)', function(e){
+    console.log("#pagination_data tr:not(:first-child)");
     
     if(window.role_id==1){
 
@@ -299,8 +300,8 @@ $(document).on('click', '#pagination_data tr:not(:first-child)', function(e){
       
 
         }else{
-
-          id='non selected for edit';
+	
+          idString='non selected for edit';
           $('#task').val(task);
           
           $('#addBtn').prop('disabled', false);
@@ -329,7 +330,8 @@ $(document).on('click', '#pagination_data tr:not(:first-child)', function(e){
           $('#choosed_row').text('id: '+id);
         }
 
-        $input_td = $(e.target).closest('input');
+        $input_td = $(e.target);
+        console.log('$input_td '+JSON.stringify($input_td));
         $row = $input_td.parent().parent();
 
         if($input_td.length>0){
@@ -345,6 +347,7 @@ $(document).on('click', '#pagination_data tr:not(:first-child)', function(e){
           }
 
           rowStatusUpdate();
+          console.log("id "+idString+"status "+status);
           function rowStatusUpdate(page)
             {
           
@@ -358,7 +361,7 @@ $(document).on('click', '#pagination_data tr:not(:first-child)', function(e){
                   success:function(response){                                     
                   },
                   error:function(){
-                    alert('error');
+                    alert('error updateRowStatus');
                   }
              })
             }

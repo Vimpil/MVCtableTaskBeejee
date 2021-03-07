@@ -17,7 +17,8 @@
      
     <p class="text-center login-title">Admin</p>
     
-     <a style="font-size: 18px" href="index"><input id='adminLogoutBtn' type="BUTTON" class="btn btn-lg btn-primary btn-block" value="logout" /></a>
+     <!--<a style="font-size: 18px" href="index"><input id='adminLogoutBtn' type="BUTTON" class="btn btn-lg btn-primary btn-block" value="logout" /></a>-->
+      <input id='adminLogoutBtn' type="BUTTON" class="btn btn-lg btn-primary btn-block" value="Logout"/>
       
 	<!-- ELSE -->
 	{% else %}
@@ -51,12 +52,12 @@
         </div>  
   </div> 
   
-  <?php if (($_SESSION['role_id'])==1):?>
+  {% if role_id == 1 %}
    
     <p style='text-align:center'>Выбраный ID для правки:</p>
     <div id="choosed_row" style='text-align:center'></div>
 
-  <?php endif; ?>  
+  {% endif %}
   
   <p class="text-center login-title">Add task</p>
     
@@ -89,14 +90,8 @@
     </form>
 	</div>
 
-<p>role_id</p>
-{{role_id}}
+{% if role_id == 1 %}
+<script>window.role_id=1;</script>
+{% endif %}
 
-<p>rowLength</p>
-{{rowLength| raw }}
-{{outtt}}
-<p>output</p>
-{{output| raw }}
-<p>pageNum</p>
-{{pageNum}}
 {% endblock %}
